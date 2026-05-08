@@ -8,6 +8,6 @@ public class HealthController {
 
     @GetMapping("/health")
     public String health(){
-        return "Auth Service Application is running";
+        return "Auth Service Application is running on port 8080";
     }
 }
