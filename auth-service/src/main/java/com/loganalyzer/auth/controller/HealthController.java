@@ -1,4 +1,4 @@
-package com.loganalyzer.auth_service.controller;
+package com.loganalyzer.auth.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

@@ -1,4 +1,4 @@
-package com.loganalyzer.auth_service.entity;
+package com.loganalyzer.auth.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

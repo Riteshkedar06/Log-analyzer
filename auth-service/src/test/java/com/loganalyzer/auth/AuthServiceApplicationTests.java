@@ -1,4 +1,4 @@
-package com.loganalyzer.auth_service;
+package com.loganalyzer.auth;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
