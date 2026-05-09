@@ -1,14 +1,17 @@
 server:
   port: 8080
-
+#
+#spring:
+#  datasource:
+#    url: jdbc:postgresql://localhost:5433/auth_db
+#    username: admin
+#    password: admin
+#
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#
+#    show-sql: true
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5433/auth_db
-    username: admin
-    password: admin
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-
-    show-sql: true
+  profiles:
+    active: dev
