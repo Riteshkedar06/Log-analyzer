@@ -1,4 +1,4 @@
-package com.loganalyzer.auth_service;
+package com.loganalyzer.auth;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
