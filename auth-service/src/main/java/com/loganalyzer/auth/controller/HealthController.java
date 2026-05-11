@@ -10,4 +10,9 @@ public class HealthController {
     public String health(){
         return "Auth Service Application is running on port 8080";
     }
+
+    @GetMapping("/test")
+    public String test() {
+        return "Authenticated";
+    }
 }
