@@ -40,10 +40,6 @@ public class User implements UserDetails {
             unique = true
     )
     private String username;
-    @Override
-    public String getUsername() {
-        return email;
-    }
 
 
     @Column(
@@ -69,8 +65,11 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-
         return email;
+    }
+    @Override
+    public String getPassword() {
+        return password;
     }
 
 
