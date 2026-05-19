@@ -3,6 +3,7 @@ package com.loganalyzer.auth.controller;
 import com.loganalyzer.auth.dto.request.LoginRequest;
 import com.loganalyzer.auth.dto.request.RegisterRequest;
 import com.loganalyzer.auth.dto.response.ApiResponse;
+import com.loganalyzer.auth.security.JwtService;
 import com.loganalyzer.auth.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -31,4 +32,6 @@ public class AuthController {
     ) {
         return ResponseEntity.ok(authService.login(request));
     }
+
+
 }

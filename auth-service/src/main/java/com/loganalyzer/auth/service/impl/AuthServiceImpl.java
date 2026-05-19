@@ -3,56 +3,91 @@ package com.loganalyzer.auth.service.impl;
 import com.loganalyzer.auth.dto.request.LoginRequest;
 import com.loganalyzer.auth.dto.request.RegisterRequest;
 import com.loganalyzer.auth.dto.response.ApiResponse;
+import com.loganalyzer.auth.entity.AuthProvider;
+import com.loganalyzer.auth.entity.Role;
 import com.loganalyzer.auth.entity.User;
 import com.loganalyzer.auth.exception.InvalidCredentialsException;
 import com.loganalyzer.auth.exception.UserAlreadyExistsException;
 import com.loganalyzer.auth.repository.UserRepository;
+import com.loganalyzer.auth.security.JwtService;
 import com.loganalyzer.auth.service.AuthService;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class AuthServiceImpl implements AuthService {
+
     private final UserRepository userRepository;
+
     private final PasswordEncoder passwordEncoder;
 
-    public AuthServiceImpl(UserRepository userRepository,PasswordEncoder passwordEncoder){
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+    private final JwtService jwtService;
+
 
     @Override
     public ApiResponse register(RegisterRequest request) {
 
-        if (userRepository.existsByEmail(request.email())) {
-            throw new UserAlreadyExistsException("User already exists");
+        String email = request.email().trim().toLowerCase();
+
+        log.info("Registration request for {}", email);
+
+
+        if (userRepository.existsByEmail(email)) {
+
+            throw new UserAlreadyExistsException("Email already registered");
         }
 
-        User user = User.builder()
-                .username(request.username())
-                .email(request.email())
-                .password(passwordEncoder.encode(request.password()))
-                .build();
+
+        if (userRepository.existsByUsername(request.username())) {
+
+            throw new UserAlreadyExistsException("Username already taken");
+        }
+
+
+        User user = User.builder().username(request.username()).email(email).provider(AuthProvider.LOCAL).role(Role.ROLE_USER).password(passwordEncoder.encode(request.password())).build();
+
 
         userRepository.save(user);
 
-        return new ApiResponse(
-                "User registered successfully",
-                null
-        );
+        log.info("User registered successfully: {}", email);
+
+        return new ApiResponse("User registered successfully", null);
     }
+
 
     @Override
     public ApiResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.email()).orElseThrow(()->new InvalidCredentialsException("Invalid email or password"));
-        boolean passwordMatches = passwordEncoder.matches(request.password(),user.getPassword());
-        if(!passwordMatches){
+
+        String email = request.email().trim().toLowerCase();
+
+        log.info("Login request for {}", email);
+
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
+
+
+        boolean passwordMatches = passwordEncoder.matches(request.password(), user.getPassword());
+
+
+        if (!passwordMatches) {
+
+            log.warn("Failed login attempt for {}", email);
+
             throw new InvalidCredentialsException("Invalid email or password");
         }
-        return new ApiResponse(
-                "Login Successful",
-                null
 
-        );
+
+        String token = jwtService.generateToken(user);
+
+
+        log.info("Login successful for {}", email);
+
+        return new ApiResponse("Login successful", token);
+
     }
 }
