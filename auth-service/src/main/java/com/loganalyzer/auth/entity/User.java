@@ -40,6 +40,10 @@ public class User implements UserDetails {
             unique = true
     )
     private String username;
+    @Override
+    public String getUsername() {
+        return email;
+    }
 
 
     @Column(
