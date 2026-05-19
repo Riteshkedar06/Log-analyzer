@@ -2,6 +2,7 @@ package com.loganalyzer.auth.exception;
 
 import com.loganalyzer.auth.dto.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -63,8 +64,7 @@ public class GlobalExceptionHandler {
                         .getFieldErrors()
                         .stream()
                         .findFirst()
-                        .map(field ->
-                                field.getDefaultMessage()
+                        .map(DefaultMessageSourceResolvable::getDefaultMessage
                         )
                         .orElse("Validation failed");
 
