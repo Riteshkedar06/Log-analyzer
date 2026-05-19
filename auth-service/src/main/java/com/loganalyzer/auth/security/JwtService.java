@@ -1,9 +1,11 @@
 package com.loganalyzer.auth.security;
 
+import com.loganalyzer.auth.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -20,40 +22,112 @@ public class JwtService {
     @Value("${jwt.expiration}")
     private long expiration;
 
-    public String generateToken(String email) {
+    private Key signingKey;
+
+
+    @PostConstruct
+    public void init() {
+
+        if(secret.length()<32){
+
+            throw new IllegalStateException(
+                    "JWT secret too short"
+            );
+        }
+
+        signingKey=
+                Keys.hmacShaKeyFor(
+                        secret.getBytes()
+                );
+    }
+
+
+    public String generateToken(
+            User user
+    ) {
 
         return Jwts.builder()
-                .setSubject(email)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(getSignKey(), SignatureAlgorithm.HS256)
+                .setSubject(
+                        user.getEmail()
+                )
+                .claim(
+                        "role",
+                        user.getRole().name()
+                )
+                .setIssuedAt(
+                        new Date()
+                )
+                .setExpiration(
+                        new Date(
+                                System.currentTimeMillis()
+                                        + expiration
+                        )
+                )
+                .signWith(
+                        signingKey,
+                        SignatureAlgorithm.HS256
+                )
                 .compact();
     }
 
-    public String extractEmail(String token) {
-        return extractClaims(token).getSubject();
+
+    public String extractEmail(
+            String token
+    ){
+
+        return extractClaims(
+                token
+        ).getSubject();
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
 
-        final String username = extractEmail(token);
+    public String extractRole(
+            String token
+    ){
 
-        return username.equals(userDetails.getUsername())
-                && !extractClaims(token)
-                .getExpiration()
-                .before(new Date());
+        return extractClaims(token)
+                .get(
+                        "role",
+                        String.class
+                );
     }
 
-    private Claims extractClaims(String token) {
+
+    public boolean isTokenValid(
+            String token,
+            UserDetails userDetails
+    ){
+
+        Claims claims=
+                extractClaims(token);
+
+        return claims
+                .getSubject()
+                .equals(
+                        userDetails.getUsername()
+                )
+                &&
+                !claims
+                        .getExpiration()
+                        .before(
+                                new Date()
+                        );
+    }
+
+
+    private Claims extractClaims(
+            String token
+    ){
 
         return Jwts.parserBuilder()
-                .setSigningKey(getSignKey())
+                .setSigningKey(
+                        signingKey
+                )
                 .build()
-                .parseClaimsJws(token)
+                .parseClaimsJws(
+                        token
+                )
                 .getBody();
     }
 
-    private Key getSignKey() {
-        return Keys.hmacShaKeyFor(secret.getBytes());
-    }
 }
