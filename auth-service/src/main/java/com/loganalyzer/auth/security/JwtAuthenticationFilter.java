@@ -25,101 +25,55 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final CustomUserDetailsService userDetailsService;
 
     @Override
-    protected boolean shouldNotFilter(
-            HttpServletRequest request
-    ) {
+    protected boolean shouldNotFilter(HttpServletRequest request) {
 
-        String path=request.getServletPath();
+        String path = request.getServletPath();
 
-        return path.startsWith("/auth")
-                || path.startsWith("/oauth2")
-                || path.startsWith("/login/oauth2")
-                || path.startsWith("/health")
-                || path.startsWith("/swagger-ui")
-                || path.startsWith("/v3/api-docs");
+        return path.startsWith("/auth") || path.startsWith("/oauth2") || path.startsWith("/login/oauth2") || path.startsWith("/health") || path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs");
     }
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         try {
 
-            final String authHeader =
-                    request.getHeader("Authorization");
+            final String authHeader = request.getHeader("Authorization");
 
-            if(authHeader==null ||
-                    !authHeader.startsWith("Bearer ")){
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
 
-                filterChain.doFilter(
-                        request,
-                        response
-                );
+                filterChain.doFilter(request, response);
 
                 return;
             }
 
-            String jwt=
-                    authHeader.substring(7);
+            String jwt = authHeader.substring(7);
 
-            String email=
-                    jwtService.extractEmail(jwt);
+            String email = jwtService.extractEmail(jwt);
 
-            if(email!=null &&
-                    SecurityContextHolder
-                            .getContext()
-                            .getAuthentication()==null){
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                UserDetails userDetails=
-                        userDetailsService
-                                .loadUserByUsername(email);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
-                boolean valid=
-                        jwtService.isTokenValid(
-                                jwt,
-                                userDetails
-                        );
+                boolean valid = jwtService.isTokenValid(jwt, userDetails);
 
-                if(valid){
+                if (valid) {
 
-                    UsernamePasswordAuthenticationToken authToken=
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails,
-                                    null,
-                                    userDetails.getAuthorities()
-                            );
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-                    authToken.setDetails(
-                            new WebAuthenticationDetailsSource()
-                                    .buildDetails(request)
-                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                    SecurityContextHolder
-                            .getContext()
-                            .setAuthentication(authToken);
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
 
-                    log.debug(
-                            "User authenticated: {}",
-                            email
-                    );
+                    log.debug("User authenticated: {}", email);
                 }
             }
 
-        } catch(Exception ex){
+        } catch (Exception ex) {
 
-            log.warn(
-                    "JWT authentication failed: {}",
-                    ex.getMessage()
-            );
+            log.warn("JWT authentication failed: {}", ex.getMessage());
 
         }
 
-        filterChain.doFilter(
-                request,
-                response
-        );
+        filterChain.doFilter(request, response);
     }
 }
