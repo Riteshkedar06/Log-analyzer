@@ -1,6 +1,8 @@
 spring:
   application:
     name: auth-service
+  flyway:
+    enabled: true
 
   profiles:
     active: dev
