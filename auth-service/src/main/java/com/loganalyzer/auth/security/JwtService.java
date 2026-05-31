@@ -19,8 +19,8 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String secret;
 
-    @Value("${jwt.expiration}")
-    private long expiration;
+    @Value("${jwt.access-token.expiration}")
+    private long accessTokenExpiration;
 
     private Key signingKey;
 
@@ -60,7 +60,7 @@ public class JwtService {
                 .setExpiration(
                         new Date(
                                 System.currentTimeMillis()
-                                        + expiration
+                                        + accessTokenExpiration
                         )
                 )
                 .signWith(

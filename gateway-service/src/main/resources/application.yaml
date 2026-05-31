@@ -1,12 +1,27 @@
 server:
   port: 8080
 
+jwt:
+  secret: myverysecurejwtsecretkey123456789
 spring:
   application:
     name: gateway-service
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+
+            - id: auth-service
+              uri: http://localhost:8081
+              predicates:
+                - Path=/auth/**
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info
+
+kind: Application
