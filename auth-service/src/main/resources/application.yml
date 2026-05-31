@@ -1,6 +1,33 @@
-server:
-  port: 8080
-
 spring:
+  application:
+    name: auth-service
+
   profiles:
     active: dev
+
+jwt:
+  issuer: log-analyzer-auth
+  secret: ${JWT_SECRET}
+
+  access-token:
+    expiration: 900000
+
+  refresh-token:
+    expiration: 604800000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
+
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: INFO
+
+  pattern:
+    console: "%d %-5level [%X{traceId}] %logger{36} : %msg%n"
