@@ -1,6 +1,7 @@
 package com.loganalyzer.auth.controller;
 
 import com.loganalyzer.auth.dto.request.LoginRequest;
+import com.loganalyzer.auth.dto.request.RefreshTokenRequest;
 import com.loganalyzer.auth.dto.request.RegisterRequest;
 import com.loganalyzer.auth.dto.response.ApiResponse;
 import com.loganalyzer.auth.service.AuthService;
@@ -30,6 +31,20 @@ public class AuthController {
             @Valid @RequestBody LoginRequest request
     ) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse> refreshToken(
+            @Valid
+            @RequestBody
+            RefreshTokenRequest request
+    ) {
+
+        return ResponseEntity.ok(
+                authService.refreshToken(
+                        request
+                )
+        );
     }
 
 

@@ -17,4 +17,8 @@ public interface UserSessionRepository
     Optional<UserSession> findByRefreshTokenHashAndRevokedFalse(
             String refreshTokenHash
     );
+    Optional<UserSession> findByRefreshTokenHash(
+            String refreshTokenHash
+    );
+
 }
