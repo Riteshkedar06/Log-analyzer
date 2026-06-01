@@ -41,9 +41,9 @@ public class SecurityConfig {
 
     private final OAuth2SuccessHandler oauth2SuccessHandler;
 
-    private final AuthenticationEntryPoint authenticationEntryPoint;
+//    private final AuthenticationEntryPoint authenticationEntryPoint;
 
-    private final AccessDeniedHandler accessDeniedHandler;
+//    private final AccessDeniedHandler accessDeniedHandler;
 
     @Value("${security.bcrypt.strength:12}")
     private int bcryptStrength;
@@ -81,11 +81,11 @@ public class SecurityConfig {
 
                 .oauth2Login(oauth -> oauth.successHandler(oauth2SuccessHandler))
 
-                .exceptionHandling(ex -> ex
-
-                        .authenticationEntryPoint(authenticationEntryPoint)
-
-                        .accessDeniedHandler(accessDeniedHandler))
+//                .exceptionHandling(ex -> ex
+//
+//                        .authenticationEntryPoint(authenticationEntryPoint)
+//
+//                        .accessDeniedHandler(accessDeniedHandler))
 
                 .headers(headers -> headers
 
