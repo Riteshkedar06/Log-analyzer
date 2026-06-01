@@ -1,6 +1,7 @@
 package com.loganalyzer.auth.service.impl;
 
 import com.loganalyzer.auth.dto.request.LoginRequest;
+import com.loganalyzer.auth.dto.request.LogoutRequest;
 import com.loganalyzer.auth.dto.request.RefreshTokenRequest;
 import com.loganalyzer.auth.dto.request.RegisterRequest;
 import com.loganalyzer.auth.dto.response.ApiResponse;
@@ -32,7 +33,6 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
 
-
     @Override
     public ApiResponse register(RegisterRequest request) {
 
@@ -40,57 +40,61 @@ public class AuthServiceImpl implements AuthService {
 
         log.info("Registration request for {}", email);
 
-
         if (userRepository.existsByEmail(email)) {
-
-            throw new UserAlreadyExistsException("Email already registered");
+            throw new UserAlreadyExistsException(
+                    "Email already registered"
+            );
         }
-
 
         if (userRepository.existsByUsername(request.username())) {
-
-            throw new UserAlreadyExistsException("Username already taken");
+            throw new UserAlreadyExistsException(
+                    "Username already taken"
+            );
         }
 
-
         User user = User.builder()
-                .username(request.username()).
-                email(email)
-                .provider(AuthProvider.LOCAL).
-                role(Role.ROLE_USER)
-                .password(passwordEncoder.encode(request.password()))
+                .username(request.username())
+                .email(email)
+                .provider(AuthProvider.LOCAL)
+                .role(Role.ROLE_USER)
+                .password(
+                        passwordEncoder.encode(
+                                request.password()
+                        )
+                )
                 .build();
-
 
         userRepository.save(user);
 
-        log.info("User registered successfully: {}", email);
+        log.info(
+                "User registered successfully: {}",
+                email
+        );
 
-        return new ApiResponse("User registered successfully", null);
+        return new ApiResponse(
+                "User registered successfully",
+                null
+        );
     }
-
 
     @Override
     public ApiResponse login(LoginRequest request) {
 
-        String email =
-                request.email()
-                        .trim()
-                        .toLowerCase();
+        String email = request.email()
+                .trim()
+                .toLowerCase();
 
         log.info(
                 "Login request for {}",
                 email
         );
 
-        User user =
-                userRepository
-                        .findByEmail(email)
-                        .orElseThrow(
-                                () -> new InvalidCredentialsException(
-                                        "Invalid email or password"
-                                )
-                        );
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(
+                        () -> new InvalidCredentialsException(
+                                "Invalid email or password"
+                        )
+                );
 
         boolean passwordMatches =
                 passwordEncoder.matches(
@@ -145,20 +149,40 @@ public class AuthServiceImpl implements AuthService {
                                 request.refreshToken()
                         );
 
-        User user =
-                session.getUser();
+        User user = session.getUser();
 
         String accessToken =
-                jwtService.generateToken(
-                        user
-                );
+                jwtService.generateToken(user);
+
+        String newRefreshToken =
+                refreshTokenService
+                        .rotateRefreshToken(
+                                request.refreshToken()
+                        );
 
         return new ApiResponse(
                 "Token refreshed",
                 new AuthResponse(
                         accessToken,
-                        request.refreshToken()
+                        newRefreshToken
                 )
+        );
+    }
+
+    @Override
+    public ApiResponse logout(
+            LogoutRequest request
+    ) {
+
+        refreshTokenService.revokeRefreshToken(
+                request.refreshToken()
+        );
+
+        log.info("User logged out successfully");
+
+        return new ApiResponse(
+                "Logout successful",
+                null
         );
     }
 }

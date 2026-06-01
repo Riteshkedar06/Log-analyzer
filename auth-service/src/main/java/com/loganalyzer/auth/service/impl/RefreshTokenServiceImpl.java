@@ -2,6 +2,7 @@ package com.loganalyzer.auth.service.impl;
 
 import com.loganalyzer.auth.entity.User;
 import com.loganalyzer.auth.entity.UserSession;
+import com.loganalyzer.auth.exception.InvalidRefreshTokenException;
 import com.loganalyzer.auth.repository.UserSessionRepository;
 import com.loganalyzer.auth.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
@@ -24,13 +25,14 @@ import java.util.concurrent.TimeUnit;
 public class RefreshTokenServiceImpl
         implements RefreshTokenService {
 
+    private static final String REFRESH_TOKEN_PREFIX = "refresh:";
+
     private final UserSessionRepository userSessionRepository;
 
     private final StringRedisTemplate redisTemplate;
 
     @Value("${jwt.refresh-token.expiration}")
     private long refreshTokenExpiration;
-
 
     @Override
     public String createRefreshToken(
@@ -39,80 +41,91 @@ public class RefreshTokenServiceImpl
             String ipAddress
     ) {
 
-        String refreshToken =
-                UUID.randomUUID().toString();
+        String refreshToken = UUID.randomUUID().toString();
 
-        String tokenHash =
-                hash(refreshToken);
+        String tokenHash = hash(refreshToken);
 
-        UserSession session =
-                UserSession.builder()
-                        .user(user)
-                        .refreshTokenHash(tokenHash)
-                        .deviceName(deviceName)
-                        .ipAddress(ipAddress)
-                        .createdAt(LocalDateTime.now())
-                        .expiresAt(
-                                LocalDateTime.now()
-                                        .plusSeconds(
-                                                refreshTokenExpiration / 1000
-                                        )
-                        )
-                        .revoked(false)
-                        .build();
+        UserSession session = UserSession.builder()
+                .user(user)
+                .refreshTokenHash(tokenHash)
+                .deviceName(deviceName)
+                .ipAddress(ipAddress)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(
+                        LocalDateTime.now()
+                                .plusSeconds(
+                                        refreshTokenExpiration / 1000
+                                )
+                )
+                .revoked(false)
+                .build();
 
         userSessionRepository.save(session);
 
-        redisTemplate.opsForValue()
-                .set(
-                        "refresh:" + tokenHash,
-                        user.getEmail(),
-                        refreshTokenExpiration,
-                        TimeUnit.MILLISECONDS
-                );
+        redisTemplate.opsForValue().set(
+                REFRESH_TOKEN_PREFIX + tokenHash,
+                user.getEmail(),
+                refreshTokenExpiration,
+                TimeUnit.MILLISECONDS
+        );
+
+        log.info(
+                "Refresh token created for user {}",
+                user.getEmail()
+        );
 
         return refreshToken;
     }
-
 
     @Override
     public UserSession validateRefreshToken(
             String refreshToken
     ) {
 
-        String tokenHash =
-                hash(refreshToken);
+        String tokenHash = hash(refreshToken);
 
-        Boolean exists =
-                redisTemplate.hasKey(
-                        "refresh:" + tokenHash
-                );
+        Boolean exists = redisTemplate.hasKey(
+                REFRESH_TOKEN_PREFIX + tokenHash
+        );
 
-        if(Boolean.FALSE.equals(exists)){
-            throw new RuntimeException(
+        if (Boolean.FALSE.equals(exists)) {
+
+            throw new InvalidRefreshTokenException(
                     "Invalid refresh token"
             );
         }
 
-        return userSessionRepository
-                .findByRefreshTokenHashAndRevokedFalse(
-                        tokenHash
-                )
-                .orElseThrow(
-                        () -> new RuntimeException(
-                                "Invalid refresh token"
+        UserSession session =
+                userSessionRepository
+                        .findByRefreshTokenHashAndRevokedFalse(
+                                tokenHash
                         )
-                );
-    }
+                        .orElseThrow(
+                                () ->
+                                        new InvalidRefreshTokenException(
+                                                "Invalid refresh token"
+                                        )
+                        );
 
+        if (
+                session.getExpiresAt()
+                        .isBefore(LocalDateTime.now())
+        ) {
+
+            throw new InvalidRefreshTokenException(
+                    "Refresh token expired"
+            );
+        }
+
+        return session;
+    }
 
     @Override
     public void revokeRefreshToken(
             String refreshToken
     ) {
 
-        String tokenHash =
-                hash(refreshToken);
+        String tokenHash = hash(refreshToken);
 
         userSessionRepository
                 .findByRefreshTokenHash(tokenHash)
@@ -121,13 +134,17 @@ public class RefreshTokenServiceImpl
                     session.setRevoked(true);
 
                     userSessionRepository.save(session);
+
+                    log.info(
+                            "Refresh token revoked for user {}",
+                            session.getUser().getEmail()
+                    );
                 });
 
         redisTemplate.delete(
-                "refresh:" + tokenHash
+                REFRESH_TOKEN_PREFIX + tokenHash
         );
     }
-
 
     @Override
     public void revokeAllUserSessions(
@@ -138,19 +155,45 @@ public class RefreshTokenServiceImpl
                 userSessionRepository
                         .findByUserAndRevokedFalse(user);
 
-        for(UserSession session : sessions){
+        sessions.forEach(
+                session -> session.setRevoked(true)
+        );
 
-            session.setRevoked(true);
+        userSessionRepository.saveAll(sessions);
 
-            userSessionRepository.save(session);
+        sessions.forEach(session ->
+                redisTemplate.delete(
+                        REFRESH_TOKEN_PREFIX
+                                + session.getRefreshTokenHash()
+                )
+        );
 
-            redisTemplate.delete(
-                    "refresh:"
-                            + session.getRefreshTokenHash()
-            );
-        }
+        log.info(
+                "All sessions revoked for user {}",
+                user.getEmail()
+        );
     }
 
+    @Override
+    public String rotateRefreshToken(
+            String oldRefreshToken
+    ) {
+
+        UserSession session =
+                validateRefreshToken(
+                        oldRefreshToken
+                );
+
+        revokeRefreshToken(
+                oldRefreshToken
+        );
+
+        return createRefreshToken(
+                session.getUser(),
+                session.getDeviceName(),
+                session.getIpAddress()
+        );
+    }
 
     private String hash(
             String value
@@ -170,8 +213,7 @@ public class RefreshTokenServiceImpl
                             )
                     );
 
-            return HexFormat
-                    .of()
+            return HexFormat.of()
                     .formatHex(hash);
 
         } catch (Exception ex) {

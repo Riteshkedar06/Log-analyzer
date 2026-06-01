@@ -1,6 +1,7 @@
 package com.loganalyzer.auth.controller;
 
 import com.loganalyzer.auth.dto.request.LoginRequest;
+import com.loganalyzer.auth.dto.request.LogoutRequest;
 import com.loganalyzer.auth.dto.request.RefreshTokenRequest;
 import com.loganalyzer.auth.dto.request.RegisterRequest;
 import com.loganalyzer.auth.dto.response.ApiResponse;
@@ -46,6 +47,16 @@ public class AuthController {
                 )
         );
     }
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse> logout(
+            @Valid
+            @RequestBody
+            LogoutRequest request
+    ) {
 
+        return ResponseEntity.ok(
+                authService.logout(request)
+        );
+    }
 
 }

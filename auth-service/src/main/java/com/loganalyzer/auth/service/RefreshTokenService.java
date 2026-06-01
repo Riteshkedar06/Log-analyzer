@@ -22,4 +22,7 @@ public interface RefreshTokenService {
     void revokeAllUserSessions(
             User user
     );
+    String rotateRefreshToken(
+            String oldRefreshToken
+    );
 }

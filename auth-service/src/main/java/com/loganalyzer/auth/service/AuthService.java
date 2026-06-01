@@ -1,6 +1,7 @@
 package com.loganalyzer.auth.service;
 
 import com.loganalyzer.auth.dto.request.LoginRequest;
+import com.loganalyzer.auth.dto.request.LogoutRequest;
 import com.loganalyzer.auth.dto.request.RefreshTokenRequest;
 import com.loganalyzer.auth.dto.request.RegisterRequest;
 import com.loganalyzer.auth.dto.response.ApiResponse;
@@ -11,5 +12,8 @@ public interface AuthService {
     ApiResponse login(LoginRequest request);
     ApiResponse refreshToken(
             RefreshTokenRequest request
+    );
+    ApiResponse logout(
+            LogoutRequest request
     );
 }
