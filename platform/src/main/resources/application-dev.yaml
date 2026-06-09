@@ -1,0 +1,41 @@
+server:
+  port: 8081
+
+spring:
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/log_platform_db
+    username: admin
+    password: admin
+
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 3
+      idle-timeout: 300000
+      connection-timeout: 20000
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+              - profile
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+    show-sql: true
+
+    properties:
+      hibernate:
+        format_sql: true
