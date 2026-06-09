@@ -1,5 +1,7 @@
 spring:
   application:
     name: platform
+  profiles:
+    active: dev
 server:
   port: 8081
