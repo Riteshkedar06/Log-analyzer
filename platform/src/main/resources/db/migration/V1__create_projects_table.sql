@@ -1,6 +1,6 @@
 CREATE TABLE projects (
-                          id UUID PRIMARY KEY,
-                          name VARCHAR(100) NOT NULL,
+                          projectId UUID PRIMARY KEY,
+                          projectName VARCHAR(100) NOT NULL,
                           description VARCHAR(1000),
                           created_by UUID NOT NULL,
                           created_at TIMESTAMP NOT NULL,

@@ -14,6 +14,12 @@ import java.util.UUID;
         name = "projects",
         indexes = {
                 @Index(name = "idx_project_created_by", columnList = "created_by")
+        },
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_project_name_user",
+                        columnNames = {"project_name", "created_by"}
+                )
         }
 )
 @Getter
@@ -26,12 +32,12 @@ public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @EqualsAndHashCode.Include
-    private UUID id;
+    private UUID projectId;
 
     @NotBlank
     @Size(max = 100)
     @Column(nullable = false, length = 100)
-    private String name;
+    private String projectName;
 
     @Size(max = 1000)
     @Column(length = 1000)
