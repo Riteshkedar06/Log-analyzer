@@ -34,4 +34,18 @@ public class GlobalExceptionHandler {
                 Instant.now()
         );
     }
+    @ExceptionHandler(
+            AgentAuthenticationException.class
+    )
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleAgentAuth(
+            AgentAuthenticationException ex
+    ) {
+
+        return new ErrorResponse(
+                "AGENT_AUTHENTICATION_FAILED",
+                ex.getMessage(),
+                Instant.now()
+        );
+    }
 }
