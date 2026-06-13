@@ -6,7 +6,7 @@ services:
     container_name: postgres
 
     environment:
-      POSTGRES_DB: auth_db
+      POSTGRES_DB: log_analyser_db
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
 

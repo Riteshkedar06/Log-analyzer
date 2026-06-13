@@ -14,14 +14,10 @@ public interface SourceRepository
 
     Optional<Source> findBySourceId(UUID sourceId);
 
-    List<Source> findAllByProjectId(UUID projectId);
+    List<Source> findAllByProject_ProjectId(UUID projectId);
 
-    boolean existsByProjectIdAndServiceName(
+    boolean existsByProject_ProjectIdAndServiceName(
             UUID projectId,
             String serviceName
     );
-
-    boolean existsByProjectAndServiceName(Project project, @NotBlank String s);
-
-    List<Source> findAllByProject(Project project);
 }

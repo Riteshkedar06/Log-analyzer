@@ -1,10 +1,10 @@
 server:
-  port: 8081
+  port: 8082
 
 spring:
 
   datasource:
-    url: jdbc:postgresql://localhost:5433/log_platform_db
+    url: jdbc:postgresql://localhost:5433/log_analyser_db
     username: admin
     password: admin
 

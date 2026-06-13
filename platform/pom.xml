@@ -32,6 +32,14 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
+		<!-- Dev only -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+
 		<!-- Elasticsearch -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -85,7 +93,7 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- PostgreSQL Driver (optional, remove if using another DB) -->
+		<!-- PostgreSQL Driver  -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>

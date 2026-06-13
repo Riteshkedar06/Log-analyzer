@@ -7,13 +7,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface AgentRepository extends JpaRepository<Agent, UUID> {
-    AgentResponse findByApiKey(String apiKey);
+    Optional<Agent> findByApiKey(String apiKey);
 
-    Agent findBySourceAndHostname(Source source, String hostname);
+    Optional<Agent>  findBySourceAndHostname(Source source, String hostname);
 
     List<Agent> findAllBySource(Source source);
 }
