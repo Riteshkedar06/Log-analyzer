@@ -8,6 +8,7 @@ import lombok.*;
 import java.time.Instant;
 import java.util.UUID;
 
+
 @Entity
 @Table(name = "sources")
 @Getter
@@ -18,18 +19,21 @@ import java.util.UUID;
 public class Source {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "source_id")
     private UUID sourceId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id")
+    @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
-    @Column(nullable = false)
+    @Column(name = "service_name", nullable = false)
     private String serviceName;
 
     private String environment;
 
     private String host;
 
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 }

@@ -40,8 +40,8 @@ public class SourceServiceImpl implements SourceService {
                                 "Project not found"
                         ));
 
-        if (sourceRepository.existsByProjectAndServiceName(
-                project,
+        if (sourceRepository.existsByProject_ProjectIdAndServiceName(
+                projectId,
                 request.serviceName()
         )) {
 
@@ -89,7 +89,7 @@ public class SourceServiceImpl implements SourceService {
                         ));
 
         return sourceMapper.toResponseList(
-                sourceRepository.findAllByProject(project)
+                sourceRepository.findAllByProject_ProjectId(projectId)
         );
     }
 

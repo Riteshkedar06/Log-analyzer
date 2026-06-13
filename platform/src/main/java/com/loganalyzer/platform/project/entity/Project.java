@@ -9,6 +9,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+
 @Entity
 @Table(
         name = "projects",
@@ -31,12 +32,12 @@ public class Project {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @EqualsAndHashCode.Include
+    @Column(name = "project_id")
     private UUID projectId;
 
     @NotBlank
     @Size(max = 100)
-    @Column(nullable = false, length = 100)
+    @Column(name = "project_name", nullable = false, length = 100)
     private String projectName;
 
     @Size(max = 1000)
@@ -56,6 +57,4 @@ public class Project {
 
     @Version
     private Long version;
-
-
 }

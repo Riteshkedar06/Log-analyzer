@@ -7,8 +7,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
-import java.util.Optional;
 import java.util.UUID;
+
 
 @Entity
 @Table(name = "agents")
@@ -21,24 +21,29 @@ public class Agent {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "agent_id")
     private UUID agentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "source_id")
+    @JoinColumn(name = "source_id", nullable = false)
     private Source source;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "api_key", nullable = false, unique = true)
     private String apiKey;
 
     @Column(nullable = false)
     private String hostname;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private AgentStatus status;
+
+    @Column(name = "last_heartbeat")
     private Instant lastHeartbeat;
+
+    @Column(name = "registered_at", nullable = false)
     private Instant registeredAt;
 
-    @Column(nullable = false)
+    @Column(name = "agent_version", nullable = false)
     private String agentVersion;
-
 }
