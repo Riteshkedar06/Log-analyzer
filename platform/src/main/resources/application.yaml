@@ -21,6 +21,7 @@ spring:
 logging:
   level:
     root: INFO
+    org.flywaydb: DEBUG
 
   pattern:
     console: "%d %-5level [%X{traceId}] %logger{36} : %msg%n"

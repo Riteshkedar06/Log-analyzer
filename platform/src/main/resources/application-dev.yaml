@@ -4,7 +4,7 @@ server:
 spring:
 
   datasource:
-    url: jdbc:postgresql://localhost:5433/log_analyser_db
+    url: jdbc:postgresql://localhost:5433/platform_db
     username: admin
     password: admin
 
@@ -13,28 +13,17 @@ spring:
       minimum-idle: 3
       idle-timeout: 300000
       connection-timeout: 20000
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      show-sql: true
+
 
   data:
     redis:
       host: localhost
       port: 6379
 
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: ${GOOGLE_CLIENT_ID}
-            client-secret: ${GOOGLE_CLIENT_SECRET}
-            scope:
-              - email
-              - profile
-
-  jpa:
-    hibernate:
-      ddl-auto: validate
-
-    show-sql: true
 
     properties:
       hibernate:
