@@ -26,8 +26,7 @@ public class SourceServiceImpl implements SourceService {
     private final ProjectRepository projectRepository;
     private final SourceMapper sourceMapper;
 
-    String sourceNotFound ="Source not found";
-    @Override
+    private static final String SOURCE_NOT_FOUND = "Source not found";    @Override
     public SourceResponse createSource(
             UUID projectId,
             CreateSourceRequest request
@@ -71,7 +70,7 @@ public class SourceServiceImpl implements SourceService {
         Source source = sourceRepository
                 .findBySourceId(sourceId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException(sourceNotFound));
+                        new ResourceNotFoundException(SOURCE_NOT_FOUND));
 
         return sourceMapper.toResponse(source);
     }
@@ -102,7 +101,7 @@ public class SourceServiceImpl implements SourceService {
         Source source = sourceRepository
                 .findBySourceId(sourceId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException(sourceNotFound));
+                        new ResourceNotFoundException(SOURCE_NOT_FOUND));
 
         source.setServiceName(
                 request.serviceName()
@@ -129,7 +128,7 @@ public class SourceServiceImpl implements SourceService {
         Source source = sourceRepository
                 .findBySourceId(sourceId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Source not found"));
+                        new ResourceNotFoundException(SOURCE_NOT_FOUND));
 
         sourceRepository.delete(source);
     }
