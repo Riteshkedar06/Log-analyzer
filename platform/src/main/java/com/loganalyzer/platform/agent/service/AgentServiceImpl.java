@@ -56,6 +56,7 @@ public class AgentServiceImpl implements AgentService {
                             .status(AgentStatus.ONLINE)
                             .registeredAt(Instant.now())
                             .lastHeartbeat(Instant.now())
+                            .agentVersion(request.agentVersion())
                             .build();
 
                     Agent savedAgent =

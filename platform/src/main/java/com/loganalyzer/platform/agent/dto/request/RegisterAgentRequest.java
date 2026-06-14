@@ -6,7 +6,9 @@ public record RegisterAgentRequest(
 
         UUID sourceId,
 
-        String hostname
+        String hostname,
+
+        String agentVersion
 
 ) {
 }
